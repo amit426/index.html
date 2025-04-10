@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Sign In - AMT SINGH TOMAR MATHEMATICS</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        #signin-container {
+            width: 90%;
+            max-width: 400px;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            text-align: center;
+        }
+
+        h2 { font-size: 28px; margin-bottom: 20px; }
+        input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: none;
+            font-size: 16px;
+        }
+
+        button {
+            padding: 10px 20px;
+            border-radius: 25px;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            margin: 10px;
+        }
+
+        button:hover { transform: translateY(-2px); }
+        #google-signin { background: #4285F4; color: white; }
+        #signup-btn { background: #FF9800; color: white; }
+        #login-btn { background: #4CAF50; color: white; }
+
+        #error-message {
+            color: #ff4444;
+            font-size: 16px;
+            display: none;
+        }
+    </style>
+    <!-- Firebase Scripts with Fallback -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
+    <!-- Fallback Scripts (if primary fails) -->
+    <script>
+        if (typeof firebase === 'undefined') {
+            document.write('<script src="https://cdn.jsdelivr.net/npm/firebase@9.6.1/dist/firebase-app.js"><\/script>');
+            document.write('<script src="https://cdn.jsdelivr.net/npm/firebase@9.6.1/dist/firebase-auth.js"><\/script>');
+        }
+    </script>
+</head>
+<body>
+    <div id="signin-container">
+        <h2>Sign In to AMT SINGH TOMAR</h2>
+        <button id="google-signin">Sign In with Google</button>
+        <input type="email" id="email" placeholder="Email">
+        <input type="password" id="password" placeholder="Password">
+        <button id="signup-btn">Sign Up</button>
+        <button id="login-btn">Login</button>
+        <div id="error-message"></div>
+    </div>
+
+    <script>
+        window.onload = function() {
+            const errorMessage = document.getElementById('error-message');
+            const firebaseConfig = {
+                apiKey: "AIzaSyDBqYZEOZ6xqVoag6SEb5hK4V7QH9BP2v8",
+                authDomain: "amit-singh-tomar-mathematics.firebaseapp.com",
+                projectId: "amit-singh-tomar-mathematics",
+                storageBucket: "amit-singh-tomar-mathematics.firebasestorage.app",
+                messagingSenderId: "742281805335",
+                appId: "1:742281805335:web:c0a6941a45fa2e7f20a652",
+                measurementId: "G-6Q8W6C88FY"
+            };
+
+            try {
+                if (typeof firebase === 'undefined') {
+                    throw new Error('Firebase library not loaded after fallback');
+                }
+                firebase.initializeApp(firebaseConfig);
+                console.log("Firebase initialized successfully");
+            } catch (error) {
+                errorMessage.style.display = 'block';
+                errorMessage.textContent = `Firebase initialization failed: ${error.message}. Please check your internet connection or try again later.`;
+                return;
+            }
+
+            const auth = firebase.auth();
+
+            function handleAuthSuccess(user, message) {
+                localStorage.setItem("userId", user.uid);
+                localStorage.setItem("userName", user.displayName || user.email.split("@")[0]);
+                localStorage.setItem("userEmail", user.email);
+                alert(message);
+                // Replace with your AppCreator24 profile page URL
+                window.location.href = "go:profilek"; // Update this later with full URL
+            }
+
+            document.getElementById("google-signin").addEventListener("click", function() {
+                if (!firebase || !auth) {
+                    alert("Firebase not loaded. Please refresh the page.");
+                    return;
+                }
+                const provider = new firebase.auth.GoogleAuthProvider();
+                auth.signInWithPopup(provider)
+                    .then(function(result) {
+                        handleAuthSuccess(result.user, "Sign-in successful with Google! Please complete your profile.");
+                    })
+                    .catch(function(error) {
+                        alert("Google Sign-In failed: " + error.message);
+                    });
+            });
+
+            document.getElementById("signup-btn").addEventListener("click", function() {
+                if (!firebase || !auth) {
+                    alert("Firebase not loaded. Please refresh the page.");
+                    return;
+                }
+                const email = document.getElementById("email").value.trim();
+                const password = document.getElementById("password").value.trim();
+
+                if (!email || !password) {
+                    alert("Please enter both email and password!");
+                    return;
+                }
+
+                auth.createUserWithEmailAndPassword(email, password)
+                    .then(function(userCredential) {
+                        handleAuthSuccess(userCredential.user, "Account created successfully! Please complete your profile.");
+                    })
+                    .catch(function(error) {
+                        alert("Sign-Up failed: " + error.message);
+                    });
+            });
+
+            document.getElementById("login-btn").addEventListener("click", function() {
+                if (!firebase || !auth) {
+                    alert("Firebase not loaded. Please refresh the page.");
+                    return;
+                }
+                const email = document.getElementById("email").value.trim();
+                const password = document.getElementById("password").value.trim();
+
+                if (!email || !password) {
+                    alert("Please enter both email and password!");
+                    return;
+                }
+
+                auth.signInWithEmailAndPassword(email, password)
+                    .then(function(userCredential) {
+                        handleAuthSuccess(userCredential.user, "Login successful! Please complete your profile.");
+                    })
+                    .catch(function(error) {
+                        alert("Login failed: " + error.message);
+                    });
+            });
+        };
+    </script>
+</body>
+</html>
